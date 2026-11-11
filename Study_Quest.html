@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📝 Today's TODO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0f1a,#1a1a2e);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:1100px;margin:0 auto}
+.header{text-align:center;padding:30px;background:rgba(255,255,255,0.05);border-radius:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.1)}
+.logo{font-size:2.5em;font-weight:800;background:linear-gradient(135deg,#00d4aa,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{color:#888;margin-top:8px}
+.quote{background:linear-gradient(135deg,#533483,#e94560);border-radius:15px;padding:20px;text-align:center;margin-bottom:20px;font-style:italic}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:15px;margin-bottom:20px}
+.stat{background:rgba(255,255,255,0.05);border-radius:15px;padding:20px;text-align:center;border:1px solid rgba(255,255,255,0.1)}
+.stat:hover{border-color:#00d4aa;transform:translateY(-3px);transition:0.3s}
+.stat-icon{font-size:2em;margin-bottom:8px}
+.stat-val{font-size:2em;font-weight:700;color:#00d4aa}
+.stat-label{color:#888;font-size:0.85em}
+.level-box{background:rgba(255,255,255,0.05);border-radius:20px;padding:25px;margin-bottom:20px;display:flex;align-items:center;gap:25px;flex-wrap:wrap;border:1px solid rgba(255,255,255,0.1)}
+.level-circle{width:100px;height:100px;border-radius:50%;background:conic-gradient(#00d4aa var(--p,0%),#222 0%);display:flex;align-items:center;justify-content:center;position:relative}
+.level-circle::before{content:'';position:absolute;width:80px;height:80px;background:#0f0f1a;border-radius:50%}
+.level-num{position:relative;font-size:2em;font-weight:700;color:#00d4aa}
+.xp-section{flex:1;min-width:200px}
+.xp-bar{height:18px;background:#222;border-radius:10px;overflow:hidden;margin-top:8px}
+.xp-fill{height:100%;background:linear-gradient(90deg,#00d4aa,#00ff88);border-radius:10px;transition:0.5s}
+.rank{text-align:right}
+.rank-name{font-size:1.5em;font-weight:700;color:#ffd700}
+.streak{background:linear-gradient(135deg,#ff6b35,#f7931e);border-radius:15px;padding:20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px}
+.streak-info{display:flex;align-items:center;gap:15px}
+.streak-fire{font-size:2.5em;animation:fire 0.5s infinite alternate}
+@keyframes fire{to{transform:scale(1.1)}}
+.streak-num{font-size:2.5em;font-weight:700}
+.streak-bonus{background:rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;font-weight:600}
+.progress-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-bottom:20px}
+.progress-card{background:rgba(255,255,255,0.05);border-radius:20px;padding:25px;text-align:center;border:1px solid rgba(255,255,255,0.1)}
+.ring-container{position:relative;width:150px;height:150px;margin:0 auto 15px}
+.ring{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:#222;stroke-width:10}
+.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:1s}
+.ring-fill.eco{stroke:#00d4aa}
+.ring-fill.pol{stroke:#ff6b6b}
+.ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-pct{font-size:2em;font-weight:700}
+.ring-pct.eco{color:#00d4aa}
+.ring-pct.pol{color:#ff6b6b}
+.tabs{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:12px 30px;border:2px solid;border-radius:30px;cursor:pointer;font-weight:600;transition:0.3s}
+.tab.eco{border-color:rgba(0,212,170,0.5);color:#00d4aa;background:rgba(0,212,170,0.1)}
+.tab.eco:hover,.tab.eco.active{background:#00d4aa;color:#000}
+.tab.pol{border-color:rgba(255,107,107,0.5);color:#ff6b6b;background:rgba(255,107,107,0.1)}
+.tab.pol:hover,.tab.pol.active{background:#ff6b6b;color:#fff}
+.tab.p4{border-color:rgba(168,85,247,0.5);color:#a855f7;background:rgba(168,85,247,0.1)}
+.tab.p4:hover,.tab.p4.active{background:#a855f7;color:#fff}
+.days{display:flex;flex-direction:column;gap:15px}
+.day{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:15px;overflow:hidden;transition:0.3s}
+.day:hover{border-color:rgba(255,255,255,0.2);transform:translateX(5px)}
+.day.done{border-color:#00ff88;background:rgba(0,255,136,0.05)}
+.day.weekend{border-color:#ffa500}
+.day-head{padding:18px 20px;display:flex;align-items:center;gap:15px;cursor:pointer}
+.day-num{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.3em;flex-shrink:0}
+.day-num.eco{background:linear-gradient(135deg,#00d4aa,#00ff88);color:#000}
+.day-num.pol{background:linear-gradient(135deg,#ff6b6b,#ff8e8e);color:#fff}
+.day-num.p4{background:linear-gradient(135deg,#a855f7,#c084fc);color:#fff}
+.day-info{flex:1}
+.day-title{font-weight:600;font-size:1.1em;margin-bottom:4px}
+.day-meta{color:#888;font-size:0.9em;display:flex;gap:15px;flex-wrap:wrap}
+.day-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:4px 12px;border-radius:15px;font-size:0.75em;font-weight:600}
+.badge.wknd{background:linear-gradient(135deg,#ff6b35,#f7931e);color:#fff}
+.badge.xp{background:linear-gradient(135deg,#ffd700,#ffa500);color:#000}
+.day-check{width:32px;height:32px;border:3px solid #555;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:0.3s}
+.day-check:hover{border-color:#00d4aa;transform:scale(1.1)}
+.day-check.checked{background:#00ff88;border-color:#00ff88}
+.day-check.checked::after{content:'✓';color:#000;font-weight:bold}
+.day-body{max-height:0;overflow:hidden;transition:0.4s;background:rgba(0,0,0,0.3)}
+.day-body.open{max-height:1500px}
+.day-inner{padding:20px}
+.session{background:rgba(255,255,255,0.03);border-radius:12px;padding:18px;margin-bottom:12px;border-left:4px solid}
+.session.morn{border-color:#ffd700}
+.session.eve{border-color:#9b59b6}
+.session.wknd{border-color:#ff6b35;background:rgba(255,107,53,0.1)}
+.session.loop{border-color:#e91e63}
+.session.eco{border-color:#00d4aa;background:rgba(0,212,170,0.1)}
+.sess-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.sess-icon{font-size:1.5em}
+.sess-title{font-weight:600}
+.sess-dur{margin-left:auto;background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:0.85em}
+.source{background:rgba(255,255,255,0.05);border-radius:8px;padding:12px;margin-bottom:12px}
+.source-lbl{color:#888;font-size:0.8em}
+.tasks{list-style:none}
+.task{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.task:last-child{border:none}
+.task-box{width:22px;height:22px;border:2px solid #555;border-radius:5px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.task-box:hover{border-color:#00d4aa}
+.task-box.checked{background:#00d4aa;border-color:#00d4aa}
+.task-box.checked::after{content:'✓';color:#000;font-size:0.8em}
+.task-txt{color:#aaa;line-height:1.5}
+.task-txt.checked{text-decoration:line-through;opacity:0.5}
+.split{background:rgba(155,89,182,0.1);border:2px dashed rgba(155,89,182,0.5);border-radius:12px;padding:15px;margin:12px 0}
+.split-title{color:#9b59b6;font-weight:600;margin-bottom:12px}
+.split-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.split-col{background:rgba(255,255,255,0.05);border-radius:8px;padding:12px}
+.split-col h4{font-size:0.9em;margin-bottom:8px;color:#fff}
+.split-col ul{list-style:none;color:#888;font-size:0.85em}
+.split-col li{padding:3px 0;padding-left:12px;position:relative}
+.split-col li::before{content:'•';position:absolute;left:0;color:#00d4aa}
+.heads-up{background:linear-gradient(135deg,rgba(233,69,96,0.2),rgba(83,52,131,0.2));border-radius:12px;padding:15px;margin-top:12px;border-left:4px solid #e94560}
+.heads-up h4{color:#e94560;margin-bottom:8px}
+.achieve{background:rgba(255,255,255,0.05);border-radius:20px;padding:25px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.1)}
+.achieve h2{margin-bottom:20px}
+.achieve-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:15px}
+.ach{background:rgba(255,255,255,0.03);border-radius:12px;padding:15px;text-align:center;border:2px solid transparent;transition:0.3s}
+.ach.locked{opacity:0.4;filter:grayscale(1)}
+.ach.unlocked{border-color:#ffd700;animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(255,215,0,0.3)}50%{box-shadow:0 0 20px rgba(255,215,0,0.6)}}
+.ach-icon{font-size:2.5em;margin-bottom:8px}
+.ach-name{font-weight:600;font-size:0.85em}
+.ach-desc{color:#888;font-size:0.7em}
+.hidden{display:none!important}
+@media(max-width:600px){.split-cols{grid-template-columns:1fr}.level-box{justify-content:center}.rank{text-align:center;width:100%}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1 class="logo">⚔️ UPSC STUDY QUEST</h1>
+<p class="tagline">95-DAY CHALLENGE • ECONOMICS + POLITY + GAP FILLERS</p>
+</div>
+
+<div class="quote">
+<p id="quoteText">"The expert in anything was once a beginner."</p>
+<button class="quote-btn" onclick="newQuote()" style="margin-top:10px;background:rgba(255,255,255,0.2);border:none;padding:8px 20px;border-radius:20px;color:#fff;cursor:pointer">🔄 New Quote</button>
+</div>
+
+<div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
+<button onclick="exportData()" style="background:linear-gradient(135deg,#00d4aa,#00ff88);border:none;padding:12px 25px;border-radius:25px;color:#000;font-weight:600;cursor:pointer;font-family:inherit">💾 Backup</button>
+<button onclick="document.getElementById('importFile').click()" style="background:linear-gradient(135deg,#667eea,#764ba2);border:none;padding:12px 25px;border-radius:25px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit">📂 Restore</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+<button onclick="resetData()" style="background:rgba(255,100,100,0.3);border:1px solid #ff6b6b;padding:12px 25px;border-radius:25px;color:#ff6b6b;font-weight:600;cursor:pointer;font-family:inherit">🗑️ Reset</button>
+</div>
+
+<div style="background:rgba(255,255,255,0.05);border-radius:15px;padding:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.1)">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px">
+<div>
+<h3 style="margin-bottom:5px">☁️ Cloud Sync</h3>
+<p style="color:#888;font-size:0.85em">Sync progress across laptop & phone</p>
+</div>
+<div id="cloudStatus" style="font-weight:600">☁️ Not connected</div>
+</div>
+<div style="display:flex;gap:10px;margin-top:15px;flex-wrap:wrap">
+<button onclick="setupCloud()" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:none;padding:10px 20px;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9em">🆕 Setup Cloud (New User)</button>
+<button onclick="connectCloud()" style="background:rgba(255,255,255,0.1);border:1px solid #555;padding:10px 20px;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9em">🔗 Connect (Existing)</button>
+<button onclick="cloudPull()" style="background:rgba(255,255,255,0.1);border:1px solid #555;padding:10px 20px;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9em">⬇️ Pull from Cloud</button>
+<button onclick="cloudPush()" style="background:rgba(255,255,255,0.1);border:1px solid #555;padding:10px 20px;border-radius:20px;color:#fff;font-weight:600;cursor:pointer;font-family:inherit;font-size:0.9em">⬆️ Push to Cloud</button>
+</div>
+</div>
+
+<div id="lastSaved" style="text-align:center;color:#888;font-size:0.85em;margin-bottom:20px">Last saved: Never</div>
+
+<div class="stats">
+<div class="stat"><div class="stat-icon">📅</div><div class="stat-val" id="curDay">1</div><div class="stat-label">Current Day</div></div>
+<div class="stat"><div class="stat-icon">✅</div><div class="stat-val" id="doneDays">0</div><div class="stat-label">Completed</div></div>
+<div class="stat"><div class="stat-icon">📝</div><div class="stat-val" id="doneTasks">0</div><div class="stat-label">Tasks Done</div></div>
+<div class="stat"><div class="stat-icon">⭐</div><div class="stat-val" id="totalXP">0</div><div class="stat-label">Total XP</div></div>
+</div>
+
+<div class="level-box">
+<div class="level-circle" id="lvlCircle" style="--p:0%"><span class="level-num" id="lvlNum">1</span></div>
+<div class="xp-section">
+<div style="display:flex;justify-content:space-between"><span>Experience</span><span id="xpText">0 / 100 XP</span></div>
+<div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
+</div>
+<div class="rank"><div class="rank-name" id="rankName">Novice</div><div style="color:#888;font-size:0.85em">Current Rank</div></div>
+</div>
+
+<div class="streak">
+<div class="streak-info">
+<span class="streak-fire">🔥</span>
+<div><div class="streak-num"><span id="streakNum">0</span> Days</div><div style="opacity:0.8">Current Streak</div></div>
+</div>
+<div class="streak-bonus" id="streakBonus">+0% Bonus XP</div>
+</div>
+
+<div class="progress-grid">
+<div class="progress-card">
+<div class="ring-container">
+<svg class="ring" width="150" height="150">
+<circle class="ring-bg" cx="75" cy="75" r="60"/>
+<circle class="ring-fill eco" id="ecoRing" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+</svg>
+<div class="ring-text"><div class="ring-pct eco" id="ecoPct">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
+</div>
+<h3>💰 Economics</h3>
+<p style="color:#888"><span id="ecoDays">0</span> / 44 Days</p>
+</div>
+<div class="progress-card">
+<div class="ring-container">
+<svg class="ring" width="150" height="150">
+<circle class="ring-bg" cx="75" cy="75" r="60"/>
+<circle class="ring-fill pol" id="polRing" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+</svg>
+<div class="ring-text"><div class="ring-pct pol" id="polPct">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
+</div>
+<h3>⚖️ Polity</h3>
+<p style="color:#888"><span id="polDays">0</span> / 31 Days</p>
+</div>
+<div class="progress-card">
+<div class="ring-container">
+<svg class="ring" width="150" height="150">
+<circle class="ring-bg" cx="75" cy="75" r="60"/>
+<circle class="ring-fill p4" id="p4Ring" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377" style="stroke:#a855f7"/>
+</svg>
+<div class="ring-text"><div class="ring-pct" id="p4Pct" style="color:#a855f7">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
+</div>
+<h3>🧩 Gap Fillers</h3>
+<p style="color:#888"><span id="p4Days">0</span> / 20 Days</p>
+</div>
+</div>
+
+<div class="achieve">
+<h2>🏆 Achievements</h2>
+<div class="achieve-grid" id="achGrid"></div>
+</div>
+
+<div class="tabs">
+<button class="tab eco active" onclick="showTab('eco')">💰 Economics (1-44)</button>
+<button class="tab pol" onclick="showTab('pol')">⚖️ Polity (45-75)</button>
+<button class="tab p4" onclick="showTab('p4')" style="border-color:rgba(168,85,247,0.5);color:#a855f7;background:rgba(168,85,247,0.1)">🧩 Gap Fillers (76-95)</button>
+</div>
+
+<div class="days" id="daysBox"></div>
+</div>
+
+<script>
+const QUOTES=[
+"The expert in anything was once a beginner.",
+"Small daily improvements lead to staggering results.",
+"Success is the sum of small efforts repeated daily.",
+"The harder you work, the luckier you get.",
+"Progress, not perfection.",
+"One day or day one. You decide.",
+"Dream big. Start small. Act now.",
+"Your future is created by what you do today.",
+"Discipline beats motivation.",
+"Consistency is key.",
+"I am sure that once I start, I WILL finish. I just have to find the flow state.",
+"If everyone else is doing it, you can too. You've done it before.",
+"There were many times I thought I can't — but I ended up understanding once I got involved. Trust that again.",
+"Your competitor friend is reading RIGHT NOW. What are you doing?",
+"This is THE time. This is THE opportunity. Don't let it slip.",
+"Don't push things till last minute. If today is gone, you can't bring it back.",
+"Use each and every day. Understand, don't mug up.",
+"Stressed? Go for a walk + music. Don't eat. You know your appetite.",
+"Don't do double damage — not studying AND eating. Pick one struggle.",
+"You've beaten 'I can't' before. You'll beat it again today."
+];
+const RANKS=[{l:1,n:'Novice',x:0},{l:2,n:'Apprentice',x:100},{l:3,n:'Scholar',x:300},{l:4,n:'Dedicated',x:600},{l:5,n:'Expert',x:1000},{l:6,n:'Master',x:1500},{l:7,n:'Grandmaster',x:2200},{l:8,n:'Legend',x:3000},{l:9,n:'Champion',x:4000},{l:10,n:'UPSC Ready!',x:5500}];
+const ACHS=[{id:'d1',i:'🌱',n:'First Steps',d:'Day 1 done',r:1},{id:'w1',i:'🔥',n:'Week Warrior',d:'7 days',r:7},{id:'w2',i:'⚡',n:'Fortnight',d:'14 days',r:14},{id:'m1',i:'🏅',n:'Monthly',d:'30 days',r:30},{id:'eco',i:'💰',n:'Economist',d:'Economics done',r:44},{id:'pol',i:'⚖️',n:'Polity Pro',d:'Start Polity',r:45},{id:'core',i:'🎯',n:'Core Done',d:'75 days!',r:75},{id:'p4s',i:'🧩',n:'Gap Filler',d:'Start Phase 4',r:76},{id:'all',i:'🏆',n:'Ultimate Champion',d:'All 95 days!',r:95}];
+
+const DATA={eco:[
+{d:1,dt:'Nov 20',t:'Colonial Drainage & Agriculture',xp:100,wk:0,m:{s:'Class 11 NCERT',c:'Ch 1: Eve of Independence',tk:['Structure of colonial economy','Land revenue systems (Zamindari)','Commercialisation of agriculture','Ruin of handicrafts']},e:{tk:['Build 3-column table: Sector→Policy→Impact','Define Drain of Wealth in Term Bank']},hu:'This forms baseline for state-led planning in Ch 2'},
+{d:2,dt:'Nov 21',t:'Mixed Economy & Four Pillars',xp:100,wk:0,m:{s:'Class 11 NCERT',c:'Ch 2: 1950-1990 (Part 1)',tk:['Why Mixed Economy chosen','4 goals: Growth, Modernisation, Self-Reliance, Equity']},e:{tk:['Write 2-sentence profile for each goal','Term Bank: Perspective Planning, Public Sector Dominance']},lr:'Day 1 table'},
+{d:3,dt:'Nov 22',t:'Land Reforms & Green Revolution',xp:150,wk:1,m:{s:'Class 11 NCERT',c:'Ch 2: 1950-1990 (Part 2)',tk:['Land Reforms (abolition, ceilings)','Green Revolution achievements','Regional disparities','Groundwater depletion']},e:{tk:['Flowchart: land ceiling evasions','List +/- externalities of Green Revolution']},wb:'Draft 150-word: Green Revolution factors + ecological impacts'},
+{d:4,dt:'Nov 23',t:'LPG Reforms 1991',xp:150,wk:1,m:{s:'Class 11 NCERT',c:'Ch 3: LPG Reforms',tk:['1991 BoP crisis','Forex down to 2 weeks','Short vs Long-term reforms']},e:{tk:['Block chart: Crisis→IMF→L vs P vs G']},wb:'Weekly Vault: Read all Day 1-4 notes'},
+{d:5,dt:'Nov 24',t:'Circular Flow & Aggregates',xp:100,wk:0,m:{s:'Class 12 NCERT',c:'Ch 2: National Income (Part 1)',tk:['Circular Flow of Income','Final vs Intermediate vs Capital Goods'],nt:'Skip Chapter 1'},e:{tk:['Draw circular flow diagram','Term Bank: Depreciation, Gross/Net Investment']},lr:'Day 4 LPG chart'},
+{d:6,dt:'Nov 25',t:'National Income Equations',xp:100,wk:0,m:{s:'Class 12 NCERT',c:'Ch 2: National Income (Part 2)',tk:['GDP→GNP→NNP transforms','Market Price vs Factor Cost']},e:{tk:['GNP = GDP + NFIA','NNP = GNP - Depreciation','Factor Cost = MP - Indirect Taxes']},lr:'Day 5 goods definitions'},
+{d:7,dt:'Nov 26',t:'Real vs Nominal GDP',xp:120,wk:0,m:{s:'Class 12 NCERT',c:'Ch 2: National Income (Part 3)',tk:['Real vs Nominal GDP','Price inflation distortion','GDP Deflator']},e:{tk:['SPLIT-PAGE: Nominal vs Real GDP','Formula: Deflator = (Nom/Real)×100']},sp:{l:{t:'Nominal GDP',p:['Current market prices','Reflects price changes']},r:{t:'Real GDP',p:['Base-year prices','Reflects true output']}},lr:'Day 6 equations'},
+{d:8,dt:'Nov 27',t:'GVA & Base Years',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 1: National Income',tk:['GVA at basic prices','Base year revision history']},e:{tk:['GDP = GVA + Product Taxes - Subsidies','Timeline of base year changes']},lr:'Day 7 GDP table'},
+{d:9,dt:'Nov 28',t:'GDP Welfare Limitations',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 1: Advanced',tk:['GDP ≠ welfare','Distribution inequality','Green GDP concept']},e:{tk:['5 Core GDP Welfare Limitations checklist','Term Bank: Green GDP']},lr:'Day 8 GVA formula'},
+{d:10,dt:'Nov 29',t:'Money & Fiat Currency',xp:150,wk:1,m:{s:'Class 12 NCERT',c:'Ch 3: Money & Banking (Part 1)',tk:['Functions of money','Barter limitations','Fiat Money vs Legal Tender']},e:{tk:['Profiles: Fiat vs Legal Tender','Term Bank: Double Coincidence, Liquidity']},wb:'Prelims PYQ: National Income'},
+{d:11,dt:'Nov 30',t:'Credit Creation',xp:150,wk:1,m:{s:'Class 12 NCERT',c:'Ch 3: Money & Banking (Part 2)',tk:['Credit Creation mechanics','Deposit multiplier']},e:{tk:['Draw credit expansion schematic']},wb:'Weekly Vault: Day 5-10'},
+{d:12,dt:'Dec 1',t:'M1-M4 Aggregates',xp:100,wk:0,m:{s:'Class 12 NCERT',c:'Ch 3: Money & Banking (Part 3)',tk:['M1, M2, M3, M4 boundaries']},e:{tk:['SPLIT-PAGE: Narrow (M1-M2) vs Broad (M3-M4)','M3 = RBI total liquidity']},sp:{l:{t:'Narrow Money',p:['M1 & M2','High liquidity']},r:{t:'Broad Money',p:['M3 & M4','Includes time deposits']}},lr:'Day 11 credit schematic'},
+{d:13,dt:'Dec 2',t:'Money Multiplier',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 2: Monetary System',tk:['High-Powered Money (M0)','CDR','Liquidity Trap']},e:{tk:['Formula: Multiplier = M3/M0','1-page on Liquidity Trap']},lr:'Day 12 M1-M4'},
+{d:14,dt:'Dec 3',t:'RBI Quantitative Tools',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 3: Banking (Part 1)',tk:['Repo Rate','Bank Rate','OMO']},e:{tk:['Flowchart: Repo hike→Cost↑→Lending↑→Demand↓→Inflation↓']},lr:'Day 13 multiplier'},
+{d:15,dt:'Dec 4',t:'CRR & SLR',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 3: Banking (Part 2)',tk:['CRR','SLR','Qualitative controls']},e:{tk:['SPLIT-PAGE: CRR (RBI, no interest) vs SLR (bank, earns interest)']},sp:{l:{t:'CRR',p:['Cash with RBI','No interest earned']},r:{t:'SLR',p:['Liquid assets with bank','Earns interest']}},lr:'Day 14 flowchart'},
+{d:16,dt:'Dec 5',t:'Banking Categories',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 3: Classification',tk:['SCBs, RRBs, Cooperatives','Payment vs Small Finance Banks','MCLR']},e:{tk:['Grid: Payment Banks vs SFBs','Term Bank: MCLR']},lr:'Day 15 CRR/SLR'},
+{d:17,dt:'Dec 6',t:'NPAs & Twin Balance Sheet',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 3: NPAs',tk:['Asset classification','SMA-0 to NPA timeline','Twin Balance Sheet Problem']},e:{tk:['Timeline: Overdue→SMA-0→SMA-1→SMA-2→NPA']},wb:'Draft 200-word IBC evaluation'},
+{d:18,dt:'Dec 7',t:'NPA Resolution & PCA',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 3: Resolution',tk:['SARFAESI Act','NARCL Bad Bank','PCA framework']},e:{tk:['PCA profile: CAR, Net NPA%, ROA thresholds']},wb:'Weekly Vault: Day 12-17'},
+{d:19,dt:'Dec 8',t:'Basel Norms',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 3: Basel & Digital',tk:['Basel I, II, III','CRAR','e-Rupee']},e:{tk:['Term Bank: CRAR','Basel III pillars grid']},lr:'Day 18 PCA'},
+{d:20,dt:'Dec 9',t:'Demand vs Cost-Push Inflation',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 4: Inflation (Part 1)',tk:['Demand-Pull Inflation','Cost-Push Inflation']},e:{tk:['Side-by-side flowcharts']},lr:'Day 19 Basel'},
+{d:21,dt:'Dec 10',t:'Inflation Keywords',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 4: Classifications',tk:['Stagflation, Deflation, Disinflation','Shrinkflation, Skewflation','Core vs Headline']},e:{tk:['SPLIT-PAGE: Headline vs Core Inflation','Term Bank: Stagflation']},sp:{l:{t:'Headline',p:['Total inflation','Includes food & fuel']},r:{t:'Core',p:['Minus food & fuel','Long-term trend']}},lr:'Day 20 flowcharts'},
+{d:22,dt:'Dec 11',t:'WPI vs CPI',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 4: Indices',tk:['WPI architecture','CPI architecture']},e:{tk:['SPLIT-PAGE: WPI (DPIIT, goods) vs CPI (NSO, goods+services)']},sp:{l:{t:'WPI',p:['DPIIT publishes','Goods only','Manufacturing highest']},r:{t:'CPI',p:['NSO publishes','Goods + Services','Food highest']}},lr:'Day 21 inflation types'},
+{d:23,dt:'Dec 12',t:'MPC & Targeting',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 4: MPC',tk:['MPC structure (6 members)','4% target ±2%']},e:{tk:['MPC profile: voting, quorum, Governor veto']},lr:'Day 22 WPI/CPI'},
+{d:24,dt:'Dec 13',t:'Budget Receipts',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 5: Public Finance',tk:['Article 112','Revenue vs Capital Receipts']},e:{tk:['SPLIT-PAGE: Revenue vs Capital Receipts']},sp:{l:{t:'Revenue Receipts',p:['Tax & non-tax','No asset/liability change']},r:{t:'Capital Receipts',p:['Borrowings, disinvestment','Creates liability or reduces asset']}},wb:'Prelims: Monetary Policy, Inflation'},
+{d:25,dt:'Dec 14',t:'Budget Expenditure',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 5: Expenditure',tk:['Revenue Expenditure','Capital Expenditure']},e:{tk:['SPLIT-PAGE: Revenue vs Capital Expenditure','Why CapEx is better']},sp:{l:{t:'Revenue Exp',p:['Salaries, subsidies','Consumption spending']},r:{t:'Capital Exp',p:['Infrastructure, loans','Investment spending']}},wb:'Weekly Vault: Day 19-24'},
+{d:26,dt:'Dec 15',t:'Deficit Equations',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 5: Deficits',tk:['Fiscal, Revenue, Primary Deficit']},e:{tk:['Fiscal = TotalExp - (RevRec + NonDebtCap)','Primary = Fiscal - Interest']},lr:'Day 25 expenditure'},
+{d:27,dt:'Dec 16',t:'FRBM Act',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 5: FRBM',tk:['FRBM targets','N.K. Singh Committee','Debt-to-GDP']},e:{tk:['1-page: Escape Clause conditions']},lr:'Day 26 deficits'},
+{d:28,dt:'Dec 17',t:'Taxation & Finance Commission',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 5: Taxation',tk:['Direct vs Indirect','Laffer Curve','Article 280','Devolution']},e:{tk:['Draw Laffer Curve','List devolution criteria']},lr:'Day 27 FRBM'},
+{d:29,dt:'Dec 18',t:'Money Market Instruments',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 6: Markets (Part 1)',tk:['T-Bills, CP, CD, Call Money']},e:{tk:['Matrix: issuer, maturity, role']},lr:'Day 28 devolution'},
+{d:30,dt:'Dec 19',t:'Capital Markets & P-Notes',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 6: Markets (Part 2)',tk:['Primary vs Secondary','SEBI','P-Notes']},e:{tk:['P-Notes profile','Term Bank: IPO, Debenture']},lr:'Day 29 instruments'},
+{d:31,dt:'Dec 20',t:'Green Bonds, REITs, InvITs',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 6: Advanced',tk:['Green Bonds, SGBs','REITs, InvITs']},e:{tk:['Grid: REITs vs InvITs','Term Bank: Green Bond']},wb:'Mains: Revenue vs Capital Exp (250 words)'},
+{d:32,dt:'Dec 21',t:'Balance of Payments',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 7: External (Part 1)',tk:['BoP structure','Current vs Capital Account']},e:{tk:['SPLIT-PAGE: Current vs Capital Account']},sp:{l:{t:'Current Account',p:['Merchandise, Services','Remittances, Transfers']},r:{t:'Capital Account',p:['FDI, FPI','ECB, NRI deposits']}},wb:'Weekly Vault: Day 26-31'},
+{d:33,dt:'Dec 22',t:'CAD & Convertibility',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 7: Convertibility',tk:['Trade Deficit vs CAD','Current (full) vs Capital (partial)']},e:{tk:['Summary: why current full, capital restricted']},lr:'Day 32 BoP'},
+{d:34,dt:'Dec 23',t:'Exchange Rates & REER',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 7: Exchange',tk:['Fixed vs Floating','NEER, REER','Depreciation vs Devaluation']},e:{tk:['SPLIT-PAGE: Depreciation vs Devaluation']},sp:{l:{t:'Depreciation',p:['Market-driven','Floating rate']},r:{t:'Devaluation',p:['Govt-driven','Fixed rate']}},lr:'Day 33 convertibility'},
+{d:35,dt:'Dec 24',t:'Forex & WTO Boxes',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 7: Forex & WTO',tk:['4 Forex components','WTO Amber/Blue/Green boxes']},e:{tk:['3-column WTO Matrix','List 4 Forex components']},lr:'Day 34 exchange',hu:'Phase 1 Complete!'},
+{d:36,dt:'Dec 25',t:'Agriculture & Cropping',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 8: Agriculture',tk:['Landholding trends','Kharif, Rabi, Zaid']},e:{tk:['3-column: Sowing, Harvest, Crops']},lr:'Day 35 WTO'},
+{d:37,dt:'Dec 26',t:'MSP & CACP',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 8: MSP',tk:['CACP role','CCEA approval','A2+FL vs C2']},e:{tk:['Flowchart: CACP→22 crops→CCEA→Announce']},lr:'Day 36 cropping'},
+{d:38,dt:'Dec 27',t:'APMC, e-NAM, NFSA',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 8: Marketing',tk:['APMC bottlenecks','e-NAM','NFSA 2013']},e:{tk:['NFSA profile: 5kg/person, prices']},wb:'Prelims: BoP, WTO, MSP'},
+{d:39,dt:'Dec 28',t:'MSME & PLI',xp:150,wk:1,m:{s:'Nitin Singhania',c:'Ch 9: Industry',tk:['MSME definitions','PLI Scheme']},e:{tk:['SPLIT-PAGE: Micro vs Small vs Medium']},sp:{l:{t:'Micro',p:['Inv <1Cr','TO <5Cr']},r:{t:'Small/Medium',p:['Small: <10Cr/<50Cr','Medium: <50Cr/<250Cr']}},wb:'Weekly Vault: Day 32-38'},
+{d:40,dt:'Dec 29',t:'PPP: BOT, EPC, HAM',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 9: PPP',tk:['BOT, EPC, HAM','Risk sharing']},e:{tk:['3-column: BOT vs EPC vs HAM']},lr:'Day 39 MSME'},
+{d:41,dt:'Dec 30',t:'Poverty & MPI',xp:100,wk:0,m:{s:'Nitin Singhania',c:'Ch 13: Poverty',tk:['Tendulkar vs Rangarajan','MPI','Unemployment types']},e:{tk:['SPLIT-PAGE: Tendulkar vs Rangarajan','Term Bank: Disguised Unemployment']},sp:{l:{t:'Tendulkar',p:['Calorie-based','Lower poverty line']},r:{t:'Rangarajan',p:['Broader criteria','Higher poverty line']}},lr:'Day 40 PPP'},
+{d:42,dt:'Dec 31',t:'Economics Synthesis',xp:150,wk:0,m:{s:'Complete Review',c:'All Notes',tk:['Read all tables, charts, formulas']},e:{tk:['From memory: HAM, P-Notes, GVA, Deflator, Tarapore profiles']},lr:'Day 41'},
+{d:43,dt:'Jan 1',t:'Budget & Survey Update',xp:100,wk:0,m:{s:'Current Budget',c:'Budget Highlights',tk:['Fiscal Deficit %','CapEx allocation','Top sectors']},e:{tk:['Add current data to notes','Extract Economic Survey trends']},hu:'Economics Engine Complete!'},
+{d:44,dt:'Jan 2',t:'🏆 ECONOMICS PYQ TEST',xp:300,wk:0,m:{s:'PYQ Bank',c:'50 Prelims Questions',tk:['Attempt 50 without notes','Time yourself']},e:{tk:['Check answers, calculate score','Error analysis: concept vs fact','Trace to notebook, highlight']},hu:'🎉 Economics Done! Polity starts Jan 3!'}
+],
+pol:[
+{d:45,dt:'Jan 3',t:'Historical Background',xp:100,wk:0,m:{s:'NCERT + Laxmikanth',c:'Ch 1: Constitution + Historical',tk:['Trading company to admin','Governor-General centralization']},e:{tk:['Timeline: 1773 Regulating→1833 Charter']},em:'Day 7 Real vs Nominal GDP'},
+{d:46,dt:'Jan 4',t:'Crown Rule 1858-1947',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 1: Crown Rule',tk:['1857 admin overhaul','GoI Act 1919 (Dyarchy)','GoI Act 1935 (Provincial)']},e:{tk:['SPLIT-PAGE: 1919 vs 1935']},sp:{l:{t:'GoI 1919',p:['Dyarchy in provinces','Bicameral center']},r:{t:'GoI 1935',p:['Abolished dyarchy provinces','Federal structure proposed']}},wb:'Mains: GoI 1935 as blueprint (150w)'},
+{d:47,dt:'Jan 5',t:'Preamble Keywords',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 2 & 4: Making + Preamble',tk:['Constituent Assembly','Sovereign, Socialist, Secular, Democratic, Republic']},e:{tk:['5-row Preamble index with SC cases']},em:'Day 12 M1-M4'},
+{d:48,dt:'Jan 6',t:'Articles 12 & 13',xp:100,wk:0,m:{s:'NCERT + Laxmikanth',c:'Ch 7: FR (Part 1)',tk:['Civil liberties baseline','Article 13: void laws']},e:{tk:['Flowchart: Art 12 State + Art 13 Judicial Review','Term Bank: Justiciability, Eclipse, Severability']},lr:'Day 47 Preamble'},
+{d:49,dt:'Jan 7',t:'Equality (Art 14-18)',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 7: FR (Part 2)',tk:['Equality before Law vs Equal Protection','Art 16 reservation']},e:{tk:['SPLIT-PAGE: Equality Before vs Equal Protection']},sp:{l:{t:'Equality Before',p:['British origin','Negative concept']},r:{t:'Equal Protection',p:['American origin','Positive concept']}},em:'Day 15 CRR/SLR'},
+{d:50,dt:'Jan 8',t:'Freedoms (Art 19-22)',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 7: FR (Part 3)',tk:['6 freedoms under Art 19','Art 21 evolution']},e:{tk:['SPLIT-PAGE: Gopalan vs Maneka Gandhi']},sp:{l:{t:'Gopalan 1950',p:['Narrow interpretation','Executive action only']},r:{t:'Maneka 1978',p:['Broad interpretation','Executive + Legislative']}},lr:'Day 49 equality'},
+{d:51,dt:'Jan 9',t:'Religion & Minorities (Art 25-30)',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 7: FR (Part 4)',tk:['Art 25 individual freedom','Art 26 institutional','Art 29-30 minorities']},e:{tk:['Grid: Art 25 vs Art 26']},em:'Day 22 WPI/CPI'},
+{d:52,dt:'Jan 10',t:'Constitutional Remedies (Art 32)',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 7: FR (Part 5)',tk:['5 writs','Protective mechanism']},e:{tk:['Dictionary: Habeas Corpus, Mandamus, Prohibition, Certiorari, Quo-Warranto']},wb:'Prelims: Fundamental Rights'},
+{d:53,dt:'Jan 11',t:'DPSPs & Duties',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 8 & 9',tk:['Non-justiciable vision','Socialistic, Gandhian, Liberal']},e:{tk:['SPLIT-PAGE: FR vs DPSP']},sp:{l:{t:'Fundamental Rights',p:['Justiciable','Negative commands']},r:{t:'DPSPs',p:['Non-justiciable','Positive directions']}},wb:'Weekly Vault: Day 45-52'},
+{d:54,dt:'Jan 12',t:'Amendments & Basic Structure',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 10 & 11',tk:['Shankari Prasad→Golaknath→Kesavananda']},e:{tk:['Judicial ladder: 1951→1967→1973']},em:'Day 26 deficits'},
+{d:55,dt:'Jan 13',t:'President vs Governor',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 17 & 27',tk:['Nominal executives','Election/appointment']},e:{tk:['SPLIT-PAGE: President vs Governor']},sp:{l:{t:'President',p:['Elected indirectly','Impeachment Art 61']},r:{t:'Governor',p:['Appointed','Pleasure doctrine']}},lr:'Day 54 amendments'},
+{d:56,dt:'Jan 14',t:'Pardoning Powers',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 17 & 27: Pardons',tk:['5 pardon types','Art 72 vs Art 161']},e:{tk:['SPLIT-PAGE: Art 72 vs Art 161']},sp:{l:{t:'Art 72 President',p:['Death sentence ✓','Court-martial ✓']},r:{t:'Art 161 Governor',p:['Death sentence ✗','Court-martial ✗']}},em:'Day 32 BoP'},
+{d:57,dt:'Jan 15',t:'PM/CM & Councils',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 19-20, 28-29',tk:['Real executives','Collective responsibility','91st Amendment: 15%']},e:{tk:['Comparative grid: all 4 chapters']},lr:'Day 56 pardons'},
+{d:58,dt:'Jan 16',t:'AG & Centre-State',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 50, 51, 14',tk:['Attorney General Art 76','Advocate General Art 165','Art 245-255']},e:{tk:['SPLIT-PAGE: AG vs Advocate General']},sp:{l:{t:'Attorney General',p:['Art 76','Central govt advisor']},r:{t:'Advocate General',p:['Art 165','State govt advisor']}},em:'Day 35 WTO'},
+{d:59,dt:'Jan 17',t:'National Emergency',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 16: Part 1',tk:['Art 352 grounds','War, aggression, rebellion']},e:{tk:['Timeline: Proclaimed→1 month→6 months']},wb:'Write: Council vs Cabinet differences'},
+{d:60,dt:'Jan 18',t:'President\'s Rule & Financial',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 16: Part 2',tk:['Art 356 vs Art 352','Art 360 Financial']},e:{tk:['SPLIT-PAGE: National vs President\'s Rule']},sp:{l:{t:'Art 352',p:['Art 19 suspended','Legislature continues']},r:{t:'Art 356',p:['FRs untouched','Legislature dissolved']}},wb:'Weekly Vault: Day 53-59'},
+{d:61,dt:'Jan 19',t:'Parliament & Speaker',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 22: Part 1',tk:['LS vs RS representation','Speaker\'s powers']},e:{tk:['Flowchart: Speaker mandates (Money Bill, Joint Sitting, 10th Schedule)']},em:'Day 37 MSP'},
+{d:62,dt:'Jan 20',t:'Parliamentary Sessions',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 22: Part 2',tk:['Summoning, Adjournment, Prorogation','Question vs Zero Hour']},e:{tk:['SPLIT-PAGE: Adjournment vs Prorogation']},sp:{l:{t:'Adjournment',p:['Single day','By Speaker']},r:{t:'Prorogation',p:['Entire session','By President']}},lr:'Day 60 emergency'},
+{d:63,dt:'Jan 21',t:'Parliamentary Motions',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 22: Part 3',tk:['Closure, Privilege, No-Confidence']},e:{tk:['1-page: No-Confidence Motion profile']},em:'Day 39 FDI/FPI'},
+{d:64,dt:'Jan 22',t:'Ordinary vs Money Bills',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 22: Part 4',tk:['Art 108 Joint Sitting','Art 109-110 Money Bills']},e:{tk:['SPLIT-PAGE: Ordinary vs Money Bill']},sp:{l:{t:'Ordinary Bill',p:['Either house','6 mo delay','Joint sitting possible']},r:{t:'Money Bill',p:['LS only','14 days','No joint sitting']}},lr:'Day 62 sessions'},
+{d:65,dt:'Jan 23',t:'Financial Bills & Funds',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 22: Part 5',tk:['Art 117 Financial Bills','CFI Art 266','Contingency Art 267']},e:{tk:['3-column: All 3 funds']},em:'Day 40 PPP'},
+{d:66,dt:'Jan 24',t:'Committees & State Leg',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 22 & 30',tk:['PAC, Estimates, PU','State Legislature']},e:{tk:['SPLIT-PAGE: Parliament vs State Leg']},sp:{l:{t:'Parliament',p:['RS: indefinite delay','Joint sitting exists']},r:{t:'State',p:['LC: 4 months max','No joint sitting']}},wb:'Write: Estimates Committee note'},
+{d:67,dt:'Jan 25',t:'Supreme Court & HC',xp:150,wk:1,m:{s:'Laxmikanth',c:'Ch 26 & 33',tk:['Judge appointment','Collegium','Removal process']},e:{tk:['Flowchart: Removal (100 LS/50 RS→Committee→Majority→President)']},wb:'Weekly Vault: Day 61-66'},
+{d:68,dt:'Jan 26',t:'Writ Jurisdictions',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 26 & 33: Jurisdictions',tk:['Original Art 131','Writ comparison']},e:{tk:['SPLIT-PAGE: Art 32 vs Art 226']},sp:{l:{t:'Art 32 SC',p:['FRs only','National reach']},r:{t:'Art 226 HC',p:['FRs + legal rights','Provincial reach']}},em:'Day 41 poverty'},
+{d:69,dt:'Jan 27',t:'Panchayats (73rd)',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 34 & 38',tk:['Local courts','73rd Amendment','Mandatory vs Voluntary']},e:{tk:['2-list: Mandatory vs Voluntary provisions']},lr:'Day 68 writs'},
+{d:70,dt:'Jan 28',t:'Municipalities & Bodies',xp:100,wk:0,m:{s:'Laxmikanth',c:'Ch 39, 42, 45, 49',tk:['74th Amendment','EC, FC, CAG']},e:{tk:['SPLIT-PAGE: 73rd vs 74th','Constitutional Bodies Grid']},sp:{l:{t:'73rd (Rural)',p:['Schedule 11','29 items']},r:{t:'74th (Urban)',p:['Schedule 12','18 items']}},lr:'Day 69 panchayats'},
+{d:71,dt:'Jan 29',t:'Polity Synthesis',xp:150,wk:0,m:{s:'Complete Review',c:'All Notes',tk:['Historical timeline, Preamble','FR/DPSP, President/Governor']},e:{tk:['From memory: Art 312, Mandamus, Art 226, Estimates Committee, Basic Structure']},hu:'Polity Engine Complete!'},
+{d:72,dt:'Jan 30',t:'🏆 POLITY PYQ TEST',xp:300,wk:0,m:{s:'PYQ Bank',c:'50 Polity Questions',tk:['Attempt without notes']},e:{tk:['Check answers','Error analysis','Trace to notebook']}},
+{d:73,dt:'Jan 31',t:'Economics Refresh',xp:100,wk:0,m:{s:'Economics Notebook',c:'Money & Public Finance',tk:['Reactivate recall']},e:{tk:['Read External Sector, Agriculture','Recite deficits, WTO aloud']}},
+{d:74,dt:'Feb 1',t:'Full Mock Test',xp:250,wk:1,m:{s:'Mixed Paper',c:'100 Questions',tk:['2-hour strict conditions']},e:{tk:['Build Error Ledger','Silly vs Concept vs Factual']},wb:'4.5 hours diagnostic'},
+{d:75,dt:'Feb 2',t:'🎓 FINAL CERTIFICATION',xp:500,wk:1,m:{s:'Error Ledger',c:'Final Review',tk:['Review Error Ledger','Read all comparison tables']},e:{tk:['Review Term Bank','Review Bodies Grid','Close books - YOU ARE READY!']},hu:'🏆 Core Syllabus Complete! Phase 4 (Gap Fillers) recommended for 100% coverage.'}
+],
+phase4:[
+{d:76,dt:'Feb 3',t:'NITI Aayog & Planning',xp:100,wk:0,m:{s:'Nitin Singhania + Current Affairs',c:'Planning Commission to NITI Aayog',tk:['Planning Commission history & abolition','NITI Aayog structure (Governing Council, Vice Chairman)','Difference: Advisory vs Directive role','Key initiatives: Aspirational Districts, SDG Index']},e:{tk:['Comparison table: Planning Commission vs NITI Aayog','List 5 key NITI Aayog reports/indices','Term Bank: Cooperative Federalism, Competitive Federalism']},hu:'Link with Day 2 (Five Year Plans) - this is the modern evolution!'},
+{d:77,dt:'Feb 4',t:'GST Framework',xp:120,wk:0,m:{s:'Nitin Singhania + GST Council Website',c:'101st Amendment & GST Structure',tk:['Constitutional Amendment (Art 246A, 269A, 279A)','GST Council composition & voting','CGST, SGST, IGST, UTGST structure','GST slabs & exempt items']},e:{tk:['Flowchart: GST Council decision-making','SPLIT-PAGE: Pre-GST taxes vs Post-GST','Term Bank: Input Tax Credit, Reverse Charge, E-way Bill']},sp:{l:{t:'Pre-GST',p:['Excise, VAT, Service Tax','Cascading effect','Multiple returns']},r:{t:'Post-GST',p:['One Nation One Tax','ITC chain','Simplified compliance']}},hu:'Link with Day 28 (Taxation) - GST replaced indirect taxes discussed there!'},
+{d:78,dt:'Feb 5',t:'Disinvestment & PSU Reforms',xp:100,wk:0,m:{s:'Economic Survey + Budget Documents',c:'Public Sector Reforms',tk:['Types: Minority, Majority, Strategic disinvestment','DIPAM role','Privatization vs Disinvestment difference','Recent cases: Air India, LIC, BPCL']},e:{tk:['Timeline of major disinvestments','Term Bank: Strategic Sale, OFS, Navratna, Maharatna','List current Maharatna & Navratna companies']},hu:'Link with Day 4 (LPG Reforms) - Privatization policy continues here!'},
+{d:79,dt:'Feb 6',t:'Energy Sector & Renewables',xp:120,wk:0,m:{s:'Nitin Singhania + Ministry Sources',c:'Power Sector & Clean Energy',tk:['Power sector structure (Generation, Transmission, Distribution)','DISCOM issues & UDAY scheme','Solar Mission targets (500 GW by 2030)','National Green Hydrogen Mission']},e:{tk:['Flowchart: Electricity flow from generation to consumer','Term Bank: RPO, REC, PLF, T&D Losses','List major renewable energy schemes']},hu:'HIGH CURRENT AFFAIRS VALUE - COP summits, Net Zero commitments!'},
+{d:80,dt:'Feb 7',t:'Transport Infrastructure',xp:100,wk:0,m:{s:'Nitin Singhania + PIB',c:'Roads, Railways, Ports, Aviation',tk:['Bharatmala, Sagarmala projects','Railway reforms: Private trains, Dedicated Freight Corridors','Major port vs Minor port distinction','UDAN scheme for aviation']},e:{tk:['Map-based note: Industrial corridors (DMIC, etc.)','Term Bank: Gati Shakti, NIP, InvIT for infrastructure']},hu:'Link with Day 40 (PPP models) - these projects use BOT/HAM!'},
+{d:81,dt:'Feb 8',t:'Irrigation & Water Resources',xp:100,wk:1,m:{s:'Nitin Singhania + Jal Shakti Ministry',c:'Irrigation Infrastructure',tk:['Major vs Medium vs Minor irrigation','Watershed management approach','Pradhan Mantri Krishi Sinchayee Yojana','Inter-linking of rivers project']},e:{tk:['India irrigation map: Canal vs Well regions','Term Bank: Command Area Development, Micro-irrigation, Per Drop More Crop']},wb:'Link with Day 3 (Green Revolution) - irrigation was key enabler!'},
+{d:82,dt:'Feb 9',t:'Food Processing & Agri-business',xp:100,wk:1,m:{s:'Nitin Singhania + MoFPI',c:'Food Processing Industry',tk:['FPOs and their role','PM-KISAN, PM-KUSUM schemes','Cold chain infrastructure','One District One Product (ODOP)']},e:{tk:['Flowchart: Farm to Fork value chain','Term Bank: Agri-Export Zones, Mega Food Parks']},wb:'Link with Day 37-38 (MSP, APMC) - this is post-harvest side!'},
+{d:83,dt:'Feb 10',t:'Employment & Skill Development',xp:100,wk:0,m:{s:'Nitin Singhania + Labour Ministry',c:'Employment Schemes & Labour Reforms',tk:['MGNREGA provisions & issues','4 Labour Codes (replacing 29 laws)','Skill India, PMKVY','Gig economy & social security']},e:{tk:['SPLIT-PAGE: Old Labour Laws vs New Labour Codes','Term Bank: Fixed Term Employment, e-Shram portal']},sp:{l:{t:'Old System',p:['29 separate laws','Complex compliance','Informal sector ignored']},r:{t:'4 Labour Codes',p:['Wages, Social Security','Industrial Relations, OSH','Simplified, digitized']}},hu:'Link with Day 41 (Unemployment types) - these are policy solutions!'},
+{d:84,dt:'Feb 11',t:'Statutory Bodies - Part 1',xp:120,wk:0,m:{s:'Laxmikanth + Bare Acts',c:'NHRC, NCW, NCM, NCSC, NCST',tk:['NHRC: Composition, powers, limitations','National Commission for Women','National Commission for Minorities','NCSC & NCST (Constitutional status)']},e:{tk:['Master Grid: All Commissions (Composition, Appointing Authority, Tenure)','Differentiate: Constitutional vs Statutory bodies']},hu:'These are HIGHLY tested in Prelims - memorize compositions!'},
+{d:85,dt:'Feb 12',t:'Statutory Bodies - Part 2',xp:120,wk:0,m:{s:'Laxmikanth + Bare Acts',c:'CVC, CIC, Lokpal, CBI',tk:['CVC structure & jurisdiction','CIC and RTI framework','Lokpal & Lokayuktas Act 2013','CBI: Status, issues, autonomy debate']},e:{tk:['SPLIT-PAGE: CVC vs CBI vs Lokpal jurisdiction','RTI Act key provisions (Sec 4, 8, exceptions)','Term Bank: Whistleblower, Protected Disclosure']},sp:{l:{t:'CVC',p:['Advisory body','Superintendence over CBI','No prosecution power']},r:{t:'Lokpal',p:['Anti-corruption ombudsman','PM under jurisdiction','Can prosecute']}},hu:'RTI is very important for Mains GS2 - know exemptions!'},
+{d:86,dt:'Feb 13',t:'Tribunals System',xp:100,wk:0,m:{s:'Laxmikanth + Recent Judgments',c:'Tribunals in India',tk:['Article 323A (Administrative) & 323B (Other)','NGT: Composition, jurisdiction, powers','CAT, NCLT, SAT, AFT','Tribunals Reforms Act 2021 issues']},e:{tk:['Master table: All major tribunals','Term Bank: Original vs Appellate jurisdiction of tribunals']},hu:'NGT is HIGH CURRENT AFFAIRS - environment cases frequently in news!'},
+{d:87,dt:'Feb 14',t:'Citizenship & CAA',xp:100,wk:0,m:{s:'Laxmikanth + Constitution',c:'Articles 5-11 & Citizenship Act',tk:['Constitutional provisions (Art 5-11)','Citizenship Act 1955 & modes of acquisition','CAA 2019 provisions & controversy','OCI vs PIO cards']},e:{tk:['Flowchart: How to acquire/lose Indian citizenship','Term Bank: Jus Soli, Jus Sanguinis, Naturalization']},hu:'CAA-NRC is politically sensitive - focus on legal provisions only!'},
+{d:88,dt:'Feb 15',t:'Special Provisions & Schedules',xp:120,wk:1,m:{s:'Laxmikanth',c:'Art 371, Fifth & Sixth Schedules',tk:['Article 371 (A to J) for different states','Fifth Schedule: Scheduled Areas administration','Sixth Schedule: Tribal areas in NE','PESA Act 1996']},e:{tk:['Table: Art 371 provisions state-wise','SPLIT-PAGE: Fifth vs Sixth Schedule','Term Bank: Scheduled Areas, Tribal Advisory Council']},sp:{l:{t:'Fifth Schedule',p:['10 states covered','Governor has special powers','TAC is advisory']},r:{t:'Sixth Schedule',p:['4 NE states','Autonomous District Councils','Legislative + Judicial powers']}},wb:'These are frequently asked in Prelims - learn schedule applicability!'},
+{d:89,dt:'Feb 16',t:'Elections & RPA',xp:120,wk:1,m:{s:'Laxmikanth + ECI Sources',c:'Electoral System & RPA 1950/1951',tk:['RPA 1950 (Preparation of rolls) vs RPA 1951 (Conduct)','Disqualifications under RPA','Electoral bonds & political funding','EVM & VVPAT controversies']},e:{tk:['Flowchart: Election process from notification to results','Term Bank: Model Code, NOTA, Criminalization of politics']},wb:'Link with Day 70 (Election Commission) - this is the legal framework!'},
+{d:90,dt:'Feb 17',t:'Governance & E-Governance',xp:100,wk:0,m:{s:'ARC Reports + Government Sources',c:'Good Governance & Digital India',tk:['Citizen Charter principles','Sevottam model','Digital India pillars','Aadhaar & data protection issues']},e:{tk:['List major e-Governance initiatives (DigiLocker, UMANG, etc.)','Term Bank: G2C, G2B, G2G services']},hu:'E-Governance is Mains favorite - know specific portal names!'},
+{d:91,dt:'Feb 18',t:'Cooperative Federalism & ISR',xp:100,wk:0,m:{s:'Laxmikanth',c:'Inter-State Relations & Councils',tk:['Inter-State Council (Art 263)','Zonal Councils','Inter-state water disputes (Art 262)','97th Amendment (Cooperatives)']},e:{tk:['Map: 5 Zonal Councils of India','Term Bank: River Water Tribunals, Sarkaria Commission']},hu:'Link with Day 58 (Centre-State) - this completes federal picture!'},
+{d:92,dt:'Feb 19',t:'Official Language & Miscellaneous',xp:100,wk:0,m:{s:'Laxmikanth',c:'Part XVII & Other Provisions',tk:['Official Language provisions (Art 343-351)','Eighth Schedule languages','Special officers (SC/ST, Linguistic Minorities)','Schedules 1-12 quick revision']},e:{tk:['List all 22 Eighth Schedule languages','Quick reference: All 12 Schedules summary']},hu:'Language provisions rarely asked but good for complete coverage!'},
+{d:93,dt:'Feb 20',t:'Phase 4 Synthesis & Integration',xp:150,wk:0,m:{s:'All Phase 4 Notes',c:'Complete Gap Filler Review',tk:['Read through all Phase 4 notes','Identify links with Phase 1-3 topics','Update Term Bank with new terms']},e:{tk:['Create master connection chart: How Phase 4 links to earlier phases','Final Statutory Bodies grid verification']},hu:'Your syllabus is now 100% complete!'},
+{d:94,dt:'Feb 21',t:'🏆 PHASE 4 PYQ TEST',xp:300,wk:1,m:{s:'PYQ Bank',c:'Gap Topics Questions',tk:['Attempt 30 questions on Phase 4 topics','Focus: Statutory bodies, GST, Tribunals, Schemes']},e:{tk:['Error analysis','Trace gaps to notes','Final weak area identification']},wb:'Mixed revision of all 4 phases'},
+{d:95,dt:'Feb 22',t:'🎓 ULTIMATE CERTIFICATION',xp:500,wk:1,m:{s:'Complete Review',c:'All 95 Days Material',tk:['Quick flip through all 4 phases','Mental recall test of key facts']},e:{tk:['Close all books','You are NOW 100% EXAM-READY!','Economics + Polity = CONQUERED! 🏆']},wb:'Celebrate! You have completed comprehensive UPSC prep for 2 subjects!',hu:'🎉 CONGRATULATIONS! Full syllabus mastery achieved!'}
+]};
+
+let state={done:{},tasks:{},xp:0};
+const load=()=>{const s=localStorage.getItem('uq');if(s)state=JSON.parse(s)};
+const save=()=>localStorage.setItem('uq',JSON.stringify(state));
+
+function newQuote(){document.getElementById('quoteText').textContent='"'+QUOTES[Math.floor(Math.random()*QUOTES.length)]+'"'}
+
+function getLevel(){let l=1;RANKS.forEach(r=>{if(state.xp>=r.x)l=r.l});return Math.min(l,10)}
+function getRank(l){return RANKS.find(r=>r.l===l)||RANKS[0]}
+function getStreak(){let s=0;for(let i=1;i<=95;i++){if(state.done[i])s++;else break}return s}
+
+function update(){
+const ecoDone=Object.keys(state.done).filter(k=>+k<=44&&state.done[k]).length;
+const polDone=Object.keys(state.done).filter(k=>+k>44&&+k<=75&&state.done[k]).length;
+const p4Done=Object.keys(state.done).filter(k=>+k>75&&+k<=95&&state.done[k]).length;
+const total=ecoDone+polDone+p4Done;
+const lvl=getLevel();
+const rank=getRank(lvl);
+const next=getRank(lvl+1)||{x:9999};
+const streak=getStreak();
+
+document.getElementById('curDay').textContent=Math.min(total+1,95);
+document.getElementById('doneDays').textContent=total;
+document.getElementById('doneTasks').textContent=Object.keys(state.tasks).filter(k=>state.tasks[k]).length;
+document.getElementById('totalXP').textContent=state.xp;
+document.getElementById('lvlNum').textContent=lvl;
+document.getElementById('rankName').textContent=rank.n;
+const xpPct=Math.min(100,((state.xp-rank.x)/(next.x-rank.x))*100);
+document.getElementById('xpText').textContent=state.xp+' / '+next.x+' XP';
+document.getElementById('xpFill').style.width=xpPct+'%';
+document.getElementById('lvlCircle').style.setProperty('--p',xpPct+'%');
+document.getElementById('streakNum').textContent=streak;
+document.getElementById('streakBonus').textContent='+'+(Math.min(streak*5,50))+'% Bonus';
+const ecoPct=Math.round((ecoDone/44)*100);
+const polPct=Math.round((polDone/31)*100);
+const p4Pct=Math.round((p4Done/20)*100);
+document.getElementById('ecoPct').textContent=ecoPct+'%';
+document.getElementById('ecoDays').textContent=ecoDone;
+document.getElementById('ecoRing').style.strokeDashoffset=377-(377*ecoPct/100);
+document.getElementById('polPct').textContent=polPct+'%';
+document.getElementById('polDays').textContent=polDone;
+document.getElementById('polRing').style.strokeDashoffset=377-(377*polPct/100);
+document.getElementById('p4Pct').textContent=p4Pct+'%';
+document.getElementById('p4Days').textContent=p4Done;
+document.getElementById('p4Ring').style.strokeDashoffset=377-(377*p4Pct/100);
+renderAchs(total,streak,lvl);
+}
+
+function renderAchs(total,streak,lvl){
+const g=document.getElementById('achGrid');g.innerHTML='';
+ACHS.forEach(a=>{
+let u=total>=a.r||(a.id==='w1'&&streak>=7)||(a.id==='w2'&&streak>=14);
+g.innerHTML+=`<div class="ach ${u?'unlocked':'locked'}"><div class="ach-icon">${a.i}</div><div class="ach-name">${a.n}</div><div class="ach-desc">${a.d}</div></div>`;
+});
+}
+
+function showTab(t){
+document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+if(t==='eco') document.querySelector('.tab.eco').classList.add('active');
+else if(t==='pol') document.querySelector('.tab.pol').classList.add('active');
+else document.querySelector('.tab.p4').classList.add('active');
+render(t);
+}
+
+function render(sub){
+const box=document.getElementById('daysBox');box.innerHTML='';
+const data=sub==='eco'?DATA.eco:(sub==='pol'?DATA.pol:DATA.phase4);
+const colorClass=sub==='eco'?'eco':(sub==='pol'?'pol':'p4');
+data.forEach(day=>{
+const done=state.done[day.d];
+const wk=day.wk?'weekend':'';
+box.innerHTML+=`
+<div class="day ${done?'done':''} ${wk}" id="day${day.d}">
+<div class="day-head" onclick="toggle(${day.d})">
+<div class="day-num ${colorClass}">${day.d}</div>
+<div class="day-info">
+<div class="day-title">${day.t}</div>
+<div class="day-meta"><span>📅 ${day.dt}</span><span>⭐ ${day.xp} XP</span></div>
+</div>
+<div class="day-badges">
+${day.wk?'<span class="badge wknd">📌 Weekend +2h</span>':''}
+<span class="badge xp">+${day.xp} XP</span>
+</div>
+<div class="day-check ${done?'checked':''}" onclick="event.stopPropagation();markDay(${day.d},${day.xp})"></div>
+</div>
+<div class="day-body" id="body${day.d}">
+<div class="day-inner">
+${renderSession('morn','🌅','Morning Core',day.m.s,day.m.c,day.m.tk,'1.5h',day.d,day.m.nt)}
+${renderSession('eve','🌃','Evening Strategy',null,null,day.e.tk,'2.5h',day.d)}
+${day.sp?renderSplit(day.sp):''}
+${day.lr?`<div class="session loop"><div class="sess-head"><span class="sess-icon">🔄</span><span class="sess-title">Loop Revision</span></div><p style="color:#888">${day.lr}</p></div>`:''}
+${day.em?`<div class="session eco"><div class="sess-head"><span class="sess-icon">💰</span><span class="sess-title">Economics Maintenance</span><span class="sess-dur">30m</span></div><p style="color:#888">${day.em}</p></div>`:''}
+${day.wb?`<div class="session wknd"><div class="sess-head"><span class="sess-icon">⏱️</span><span class="sess-title">Weekend Buffer</span><span class="sess-dur">2h</span></div><p style="color:#888">${day.wb}</p></div>`:''}
+${day.hu?`<div class="heads-up"><h4>💡 Heads Up</h4><p style="color:#ccc">${day.hu}</p></div>`:''}
+</div>
+</div>
+</div>`;
+});
+}
+
+function renderSession(cls,icon,title,src,ch,tasks,dur,day,note){
+let html=`<div class="session ${cls}"><div class="sess-head"><span class="sess-icon">${icon}</span><span class="sess-title">${title}</span><span class="sess-dur">${dur}</span></div>`;
+if(src)html+=`<div class="source"><div class="source-lbl">📖 ${src}</div><div>${ch}</div>${note?'<div style="color:#ffa500;margin-top:5px">⚠️ '+note+'</div>':''}</div>`;
+html+='<ul class="tasks">';
+tasks.forEach((t,i)=>{
+const id='t'+day+'_'+cls+'_'+i;
+const checked=state.tasks[id];
+html+=`<li class="task"><div class="task-box ${checked?'checked':''}" onclick="markTask('${id}',this)"></div><span class="task-txt ${checked?'checked':''}">${t}</span></li>`;
+});
+html+='</ul></div>';
+return html;
+}
+
+function renderSplit(sp){
+return `<div class="split"><div class="split-title">⚠️ SPLIT-PAGE PROTOCOL</div><div class="split-cols"><div class="split-col"><h4>📋 ${sp.l.t}</h4><ul>${sp.l.p.map(p=>'<li>'+p+'</li>').join('')}</ul></div><div class="split-col"><h4>📋 ${sp.r.t}</h4><ul>${sp.r.p.map(p=>'<li>'+p+'</li>').join('')}</ul></div></div></div>`;
+}
+
+function toggle(d){document.getElementById('body'+d).classList.toggle('open')}
+function markDay(d,xp){
+state.done[d]=!state.done[d];
+if(state.done[d]){const bonus=1+(Math.min(getStreak()*5,50)/100);state.xp+=Math.round(xp*bonus)}
+else state.xp=Math.max(0,state.xp-xp);
+save();update();
+const tab=d<=44?'eco':(d<=75?'pol':'p4');
+render(tab);
+}
+function markTask(id,el){
+state.tasks[id]=!state.tasks[id];
+save();
+update();
+// Update just this checkbox without re-rendering
+if(el){
+el.classList.toggle('checked');
+el.nextElementSibling.classList.toggle('checked');
+}
+}
+
+load();update();render('eco');showLastSaved();
+
+function exportData(){
+const data={...state,exportDate:new Date().toISOString(),version:'1.0'};
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');
+a.href=url;
+a.download='UPSC_Progress_Backup_'+new Date().toISOString().split('T')[0]+'.json';
+a.click();
+URL.revokeObjectURL(url);
+alert('✅ Backup saved! Keep this file safe.');
+}
+
+function importData(e){
+const file=e.target.files[0];
+if(!file)return;
+const reader=new FileReader();
+reader.onload=function(ev){
+try{
+const data=JSON.parse(ev.target.result);
+if(data.done&&data.xp!==undefined){
+state=data;
+save();
+update();
+render('eco');
+showLastSaved();
+alert('✅ Progress restored successfully!');
+}else{
+alert('❌ Invalid backup file');
+}
+}catch(err){alert('❌ Error reading file');}
+};
+reader.readAsText(file);
+e.target.value='';
+}
+
+function resetData(){
+if(confirm('⚠️ Are you sure? This will DELETE all your progress!\n\nTip: Export a backup first!')){
+if(confirm('Really delete EVERYTHING? This cannot be undone!')){
+state={done:{},tasks:{},xp:0};
+save();
+update();
+render('eco');
+showLastSaved();
+alert('Progress reset.');
+}}}
+
+function showLastSaved(){
+const saved=localStorage.getItem('uq_time');
+document.getElementById('lastSaved').textContent=saved?'✅ Last saved: '+saved:'Auto-saves on every action';
+}
+
+// ===== CLOUD SYNC =====
+const CLOUD_KEY = localStorage.getItem('cloud_key') || '';
+const CLOUD_BIN = localStorage.getItem('cloud_bin') || '';
+
+async function setupCloud(){
+const key = prompt('Enter your JSONBin.io API Key (free at jsonbin.io):');
+if(!key) return;
+localStorage.setItem('cloud_key', key);
+
+// Create a new bin
+try {
+const res = await fetch('https://api.jsonbin.io/v3/b', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'X-Master-Key': key,
+'X-Bin-Name': 'UPSC-Study-Progress'
+},
+body: JSON.stringify(state)
+});
+const data = await res.json();
+if(data.metadata && data.metadata.id){
+localStorage.setItem('cloud_bin', data.metadata.id);
+alert('✅ Cloud sync enabled!\n\nYour Bin ID: ' + data.metadata.id + '\n\nSave this ID to use on other devices!');
+updateCloudStatus();
+}else{
+alert('❌ Setup failed: ' + JSON.stringify(data));
+}
+}catch(e){
+alert('❌ Error: ' + e.message);
+}
+}
+
+async function connectCloud(){
+const key = prompt('Enter your JSONBin.io API Key:');
+if(!key) return;
+const bin = prompt('Enter your Bin ID (shown during setup):');
+if(!bin) return;
+
+localStorage.setItem('cloud_key', key);
+localStorage.setItem('cloud_bin', bin);
+await cloudPull();
+updateCloudStatus();
+}
+
+async function cloudPush(){
+const key = localStorage.getItem('cloud_key');
+const bin = localStorage.getItem('cloud_bin');
+if(!key || !bin) return;
+
+try {
+document.getElementById('cloudStatus').textContent = '☁️ Syncing...';
+await fetch('https://api.jsonbin.io/v3/b/' + bin, {
+method: 'PUT',
+headers: {
+'Content-Type': 'application/json',
+'X-Master-Key': key
+},
+body: JSON.stringify({...state, lastSync: new Date().toISOString()})
+});
+document.getElementById('cloudStatus').textContent = '☁️ Synced ✓';
+localStorage.setItem('last_cloud_sync', new Date().toLocaleString());
+}catch(e){
+document.getElementById('cloudStatus').textContent = '☁️ Sync failed';
+}
+}
+
+async function cloudPull(){
+const key = localStorage.getItem('cloud_key');
+const bin = localStorage.getItem('cloud_bin');
+if(!key || !bin){
+alert('Cloud not set up. Click "Setup Cloud" first.');
+return;
+}
+
+try {
+document.getElementById('cloudStatus').textContent = '☁️ Fetching...';
+const res = await fetch('https://api.jsonbin.io/v3/b/' + bin + '/latest', {
+headers: { 'X-Master-Key': key }
+});
+const data = await res.json();
+if(data.record && data.record.done){
+state = {done: data.record.done, tasks: data.record.tasks || {}, xp: data.record.xp || 0};
+save();
+update();
+render('eco');
+document.getElementById('cloudStatus').textContent = '☁️ Synced ✓';
+alert('✅ Progress pulled from cloud!');
+}else{
+alert('❌ No valid data in cloud');
+}
+}catch(e){
+alert('❌ Error: ' + e.message);
+}
+}
+
+function updateCloudStatus(){
+const key = localStorage.getItem('cloud_key');
+const bin = localStorage.getItem('cloud_bin');
+const statusEl = document.getElementById('cloudStatus');
+if(key && bin){
+statusEl.textContent = '☁️ Connected';
+statusEl.style.color = '#00d4aa';
+}else{
+statusEl.textContent = '☁️ Not connected';
+statusEl.style.color = '#888';
+}
+}
+
+const origSave=save;
+save=function(){
+origSave();
+const now=new Date().toLocaleString();
+localStorage.setItem('uq_time',now);
+showLastSaved();
+// Auto cloud push (debounced)
+if(localStorage.getItem('cloud_key') && localStorage.getItem('cloud_bin')){
+clearTimeout(window.cloudTimer);
+window.cloudTimer = setTimeout(cloudPush, 2000);
+}
+};
+
+updateCloudStatus();
+</script>
+</body>
+</html>
