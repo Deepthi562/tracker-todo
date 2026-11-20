@@ -177,23 +177,23 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0f1a
 <div class="ring-container">
 <svg class="ring" width="150" height="150">
 <circle class="ring-bg" cx="75" cy="75" r="60"/>
-<circle class="ring-fill eco" id="ecoRing" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
-</svg>
-<div class="ring-text"><div class="ring-pct eco" id="ecoPct">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
-</div>
-<h3>💰 Economics</h3>
-<p style="color:#888"><span id="ecoDays">0</span> / 44 Days</p>
-</div>
-<div class="progress-card">
-<div class="ring-container">
-<svg class="ring" width="150" height="150">
-<circle class="ring-bg" cx="75" cy="75" r="60"/>
 <circle class="ring-fill pol" id="polRing" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
 </svg>
 <div class="ring-text"><div class="ring-pct pol" id="polPct">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
 </div>
 <h3>⚖️ Polity</h3>
 <p style="color:#888"><span id="polDays">0</span> / 31 Days</p>
+</div>
+<div class="progress-card">
+<div class="ring-container">
+<svg class="ring" width="150" height="150">
+<circle class="ring-bg" cx="75" cy="75" r="60"/>
+<circle class="ring-fill eco" id="ecoRing" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="377"/>
+</svg>
+<div class="ring-text"><div class="ring-pct eco" id="ecoPct">0%</div><div style="color:#888;font-size:0.8em">Done</div></div>
+</div>
+<h3>💰 Economics</h3>
+<p style="color:#888"><span id="ecoDays">0</span> / 44 Days</p>
 </div>
 <div class="progress-card">
 <div class="ring-container">
@@ -214,8 +214,8 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f0f1a
 </div>
 
 <div class="tabs">
-<button class="tab eco active" onclick="showTab('eco')">💰 Economics (1-44)</button>
-<button class="tab pol" onclick="showTab('pol')">⚖️ Polity (45-75)</button>
+<button class="tab pol active" onclick="showTab('pol')">⚖️ Polity (1-31)</button>
+<button class="tab eco" onclick="showTab('eco')">💰 Economics (32-75)</button>
 <button class="tab p4" onclick="showTab('p4')" style="border-color:rgba(168,85,247,0.5);color:#a855f7;background:rgba(168,85,247,0.1)">🧩 Gap Fillers (76-95)</button>
 </div>
 
@@ -246,7 +246,7 @@ const QUOTES=[
 "You've beaten 'I can't' before. You'll beat it again today."
 ];
 const RANKS=[{l:1,n:'Novice',x:0},{l:2,n:'Apprentice',x:100},{l:3,n:'Scholar',x:300},{l:4,n:'Dedicated',x:600},{l:5,n:'Expert',x:1000},{l:6,n:'Master',x:1500},{l:7,n:'Grandmaster',x:2200},{l:8,n:'Legend',x:3000},{l:9,n:'Champion',x:4000},{l:10,n:'UPSC Ready!',x:5500}];
-const ACHS=[{id:'d1',i:'🌱',n:'First Steps',d:'Day 1 done',r:1},{id:'w1',i:'🔥',n:'Week Warrior',d:'7 days',r:7},{id:'w2',i:'⚡',n:'Fortnight',d:'14 days',r:14},{id:'m1',i:'🏅',n:'Monthly',d:'30 days',r:30},{id:'eco',i:'💰',n:'Economist',d:'Economics done',r:44},{id:'pol',i:'⚖️',n:'Polity Pro',d:'Start Polity',r:45},{id:'core',i:'🎯',n:'Core Done',d:'75 days!',r:75},{id:'p4s',i:'🧩',n:'Gap Filler',d:'Start Phase 4',r:76},{id:'all',i:'🏆',n:'Ultimate Champion',d:'All 95 days!',r:95}];
+const ACHS=[{id:'d1',i:'🌱',n:'First Steps',d:'Day 1 done',r:1},{id:'w1',i:'🔥',n:'Week Warrior',d:'7 days',r:7},{id:'w2',i:'⚡',n:'Fortnight',d:'14 days',r:14},{id:'m1',i:'🏅',n:'Monthly',d:'30 days',r:30},{id:'pol',i:'⚖️',n:'Polity Pro',d:'Polity done',r:31},{id:'eco',i:'💰',n:'Economist',d:'Start Economics',r:32},{id:'core',i:'🎯',n:'Core Done',d:'75 days!',r:75},{id:'p4s',i:'🧩',n:'Gap Filler',d:'Start Phase 4',r:76},{id:'all',i:'🏆',n:'Ultimate Champion',d:'All 95 days!',r:95}];
 
 const DATA={eco:[
 {d:1,dt:'Nov 20',t:'Colonial Drainage & Agriculture',xp:100,wk:0,m:{s:'Class 11 NCERT',c:'Ch 1: Eve of Independence',tk:['Structure of colonial economy','Land revenue systems (Zamindari)','Commercialisation of agriculture','Ruin of handicrafts']},e:{tk:['Build 3-column table: Sector→Policy→Impact','Define Drain of Wealth in Term Bank']},hu:'This forms baseline for state-led planning in Ch 2'},
@@ -361,10 +361,10 @@ function getRank(l){return RANKS.find(r=>r.l===l)||RANKS[0]}
 function getStreak(){let s=0;for(let i=1;i<=95;i++){if(state.done[i])s++;else break}return s}
 
 function update(){
-const ecoDone=Object.keys(state.done).filter(k=>+k<=44&&state.done[k]).length;
-const polDone=Object.keys(state.done).filter(k=>+k>44&&+k<=75&&state.done[k]).length;
+const polDone=Object.keys(state.done).filter(k=>+k<=31&&state.done[k]).length;
+const ecoDone=Object.keys(state.done).filter(k=>+k>31&&+k<=75&&state.done[k]).length;
 const p4Done=Object.keys(state.done).filter(k=>+k>75&&+k<=95&&state.done[k]).length;
-const total=ecoDone+polDone+p4Done;
+const total=polDone+ecoDone+p4Done;
 const lvl=getLevel();
 const rank=getRank(lvl);
 const next=getRank(lvl+1)||{x:9999};
@@ -382,15 +382,15 @@ document.getElementById('xpFill').style.width=xpPct+'%';
 document.getElementById('lvlCircle').style.setProperty('--p',xpPct+'%');
 document.getElementById('streakNum').textContent=streak;
 document.getElementById('streakBonus').textContent='+'+(Math.min(streak*5,50))+'% Bonus';
-const ecoPct=Math.round((ecoDone/44)*100);
 const polPct=Math.round((polDone/31)*100);
+const ecoPct=Math.round((ecoDone/44)*100);
 const p4Pct=Math.round((p4Done/20)*100);
-document.getElementById('ecoPct').textContent=ecoPct+'%';
-document.getElementById('ecoDays').textContent=ecoDone;
-document.getElementById('ecoRing').style.strokeDashoffset=377-(377*ecoPct/100);
 document.getElementById('polPct').textContent=polPct+'%';
 document.getElementById('polDays').textContent=polDone;
 document.getElementById('polRing').style.strokeDashoffset=377-(377*polPct/100);
+document.getElementById('ecoPct').textContent=ecoPct+'%';
+document.getElementById('ecoDays').textContent=ecoDone;
+document.getElementById('ecoRing').style.strokeDashoffset=377-(377*ecoPct/100);
 document.getElementById('p4Pct').textContent=p4Pct+'%';
 document.getElementById('p4Days').textContent=p4Done;
 document.getElementById('p4Ring').style.strokeDashoffset=377-(377*p4Pct/100);
@@ -407,16 +407,16 @@ g.innerHTML+=`<div class="ach ${u?'unlocked':'locked'}"><div class="ach-icon">${
 
 function showTab(t){
 document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-if(t==='eco') document.querySelector('.tab.eco').classList.add('active');
-else if(t==='pol') document.querySelector('.tab.pol').classList.add('active');
+if(t==='pol') document.querySelector('.tab.pol').classList.add('active');
+else if(t==='eco') document.querySelector('.tab.eco').classList.add('active');
 else document.querySelector('.tab.p4').classList.add('active');
 render(t);
 }
 
 function render(sub){
 const box=document.getElementById('daysBox');box.innerHTML='';
-const data=sub==='eco'?DATA.eco:(sub==='pol'?DATA.pol:DATA.phase4);
-const colorClass=sub==='eco'?'eco':(sub==='pol'?'pol':'p4');
+const data=sub==='pol'?DATA.pol:(sub==='eco'?DATA.eco:DATA.phase4);
+const colorClass=sub==='pol'?'pol':(sub==='eco'?'eco':'p4');
 data.forEach(day=>{
 const done=state.done[day.d];
 const wk=day.wk?'weekend':'';
@@ -472,7 +472,7 @@ state.done[d]=!state.done[d];
 if(state.done[d]){const bonus=1+(Math.min(getStreak()*5,50)/100);state.xp+=Math.round(xp*bonus)}
 else state.xp=Math.max(0,state.xp-xp);
 save();update();
-const tab=d<=44?'eco':(d<=75?'pol':'p4');
+const tab=d<=31?'pol':(d<=75?'eco':'p4');
 render(tab);
 }
 function markTask(id,el){
@@ -486,7 +486,7 @@ el.nextElementSibling.classList.toggle('checked');
 }
 }
 
-load();update();render('eco');showLastSaved();
+load();update();render('pol');showLastSaved();
 
 function exportData(){
 const data={...state,exportDate:new Date().toISOString(),version:'1.0'};
